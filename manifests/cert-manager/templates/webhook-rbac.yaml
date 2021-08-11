@@ -1,89 +1,86 @@
-{{- if .Values.global.rbac.create -}}
-
+---
+# Source: cert-manager/templates/webhook-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: my-cert-manager-webhook:subjectaccessreviews
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: "webhook"
+    helm.sh/chart: cert-manager-v1.3.0
+rules:
+- apiGroups: ["authorization.k8s.io"]
+  resources: ["subjectaccessreviews"]
+  verbs: ["create"]
+---
+# Source: cert-manager/templates/webhook-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: my-cert-manager-webhook:subjectaccessreviews
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: "webhook"
+    helm.sh/chart: cert-manager-v1.3.0
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: my-cert-manager-webhook:subjectaccessreviews
+subjects:
+- apiGroup: ""
+  kind: ServiceAccount
+  name: my-cert-manager-webhook
+  namespace: cert-manager
+---
+# Source: cert-manager/templates/webhook-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ template "webhook.fullname" . }}:dynamic-serving
-  namespace: {{ .Release.Namespace | quote }}
+  name: my-cert-manager-webhook:dynamic-serving
+  namespace: "cert-manager"
   labels:
-    app: {{ include "webhook.name" . }}
-    app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "webhook"
-    helm.sh/chart: {{ include "webhook.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
   resourceNames:
-  - '{{ template "webhook.fullname" . }}-ca'
+  - 'my-cert-manager-webhook-ca'
   verbs: ["get", "list", "watch", "update"]
 # It's not possible to grant CREATE permission on a single resourceName.
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["create"]
 ---
-
+# Source: cert-manager/templates/webhook-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ template "webhook.fullname" . }}:dynamic-serving
-  namespace: {{ .Release.Namespace | quote }}
+  name: my-cert-manager-webhook:dynamic-serving
+  namespace: "cert-manager"
   labels:
-    app: {{ include "webhook.name" . }}
-    app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "webhook"
-    helm.sh/chart: {{ include "webhook.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ template "webhook.fullname" . }}:dynamic-serving
+  name: my-cert-manager-webhook:dynamic-serving
 subjects:
 - apiGroup: ""
   kind: ServiceAccount
-  name: {{ template "webhook.serviceAccountName" . }}
-  namespace: {{ .Release.Namespace }}
-
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: {{ template "webhook.fullname" . }}:subjectaccessreviews
-  labels:
-    app: {{ include "webhook.name" . }}
-    app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-    app.kubernetes.io/component: "webhook"
-    helm.sh/chart: {{ include "webhook.chart" . }}
-rules:
-- apiGroups: ["authorization.k8s.io"]
-  resources: ["subjectaccessreviews"]
-  verbs: ["create"]
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ template "webhook.fullname" . }}:subjectaccessreviews
-  labels:
-    app: {{ include "webhook.name" . }}
-    app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-    app.kubernetes.io/component: "webhook"
-    helm.sh/chart: {{ include "webhook.chart" . }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ template "webhook.fullname" . }}:subjectaccessreviews
-subjects:
-- apiGroup: ""
-  kind: ServiceAccount
-  name: {{ template "webhook.serviceAccountName" . }}
-  namespace: {{ .Release.Namespace }}
-
-{{- end -}}
+  name: my-cert-manager-webhook
+  namespace: cert-manager

@@ -1,19 +1,18 @@
+---
+# Source: cert-manager/templates/webhook-mutating-webhook.yaml
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: {{ include "webhook.fullname" . }}
+  name: my-cert-manager-webhook
   labels:
-    app: {{ include "webhook.name" . }}
-    app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "webhook"
-    helm.sh/chart: {{ include "webhook.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
   annotations:
-    cert-manager.io/inject-ca-from-secret: "{{ .Release.Namespace }}/{{ template "webhook.fullname" . }}-ca"
-  {{- if .Values.webhook.mutatingWebhookConfigurationAnnotations }}
-{{ toYaml .Values.webhook.mutatingWebhookConfigurationAnnotations | indent 4 }}
-  {{- end }}
+    cert-manager.io/inject-ca-from-secret: "cert-manager/my-cert-manager-webhook-ca"
 webhooks:
   - name: webhook.cert-manager.io
     rules:
@@ -28,12 +27,12 @@ webhooks:
         resources:
           - "*/*"
     admissionReviewVersions: ["v1", "v1beta1"]
-    timeoutSeconds: {{ .Values.webhook.timeoutSeconds }}
+    timeoutSeconds: 10
     failurePolicy: Fail
     # Only include 'sideEffects' field in Kubernetes 1.12+
     sideEffects: None
     clientConfig:
       service:
-        name: {{ template "webhook.fullname" . }}
-        namespace: {{ .Release.Namespace | quote }}
+        name: my-cert-manager-webhook
+        namespace: "cert-manager"
         path: /mutate

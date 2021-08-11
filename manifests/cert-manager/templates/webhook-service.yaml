@@ -1,22 +1,24 @@
+---
+# Source: cert-manager/templates/webhook-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "webhook.fullname" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  name: my-cert-manager-webhook
+  namespace: "cert-manager"
   labels:
-    app: {{ include "webhook.name" . }}
-    app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "webhook"
-    helm.sh/chart: {{ include "webhook.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
 spec:
   type: ClusterIP
   ports:
   - name: https
     port: 443
-    targetPort: {{ .Values.webhook.securePort }}
+    targetPort: 10250
   selector:
-    app.kubernetes.io/name: {{ include "webhook.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: my-cert-manager
     app.kubernetes.io/component: "webhook"

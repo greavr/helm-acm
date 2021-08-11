@@ -1,16 +1,16 @@
-{{- if .Values.cainjector.enabled -}}
-{{- if .Values.global.rbac.create -}}
+---
+# Source: cert-manager/templates/cainjector-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "cainjector.fullname" . }}
+  name: my-cert-manager-cainjector
   labels:
-    app: {{ include "cainjector.name" . }}
-    app.kubernetes.io/name: {{ include "cainjector.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: cainjector
+    app.kubernetes.io/name: cainjector
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "cainjector"
-    helm.sh/chart: {{ include "cainjector.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
 rules:
   - apiGroups: ["cert-manager.io"]
     resources: ["certificates"]
@@ -34,40 +34,41 @@ rules:
     resources: ["auditsinks"]
     verbs: ["get", "list", "watch", "update"]
 ---
+# Source: cert-manager/templates/cainjector-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ template "cainjector.fullname" . }}
+  name: my-cert-manager-cainjector
   labels:
-    app: {{ include "cainjector.name" . }}
-    app.kubernetes.io/name: {{ include "cainjector.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: cainjector
+    app.kubernetes.io/name: cainjector
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "cainjector"
-    helm.sh/chart: {{ include "cainjector.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ template "cainjector.fullname" . }}
+  name: my-cert-manager-cainjector
 subjects:
-  - name: {{ template "cainjector.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+  - name: my-cert-manager-cainjector
+    namespace: "cert-manager"
     kind: ServiceAccount
-
 ---
+# Source: cert-manager/templates/cainjector-rbac.yaml
 # leader election rules
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ template "cainjector.fullname" . }}:leaderelection
-  namespace: {{ .Values.global.leaderElection.namespace }}
+  name: my-cert-manager-cainjector:leaderelection
+  namespace: kube-system
   labels:
-    app: {{ include "cainjector.name" . }}
-    app.kubernetes.io/name: {{ include "cainjector.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: cainjector
+    app.kubernetes.io/name: cainjector
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "cainjector"
-    helm.sh/chart: {{ include "cainjector.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
 rules:
   # Used for leader election by the controller
   # cert-manager-cainjector-leader-election is used by the CertificateBased injector controller
@@ -82,30 +83,26 @@ rules:
     resources: ["configmaps"]
     verbs: ["create"]
 ---
-
+# Source: cert-manager/templates/cainjector-rbac.yaml
 # grant cert-manager permission to manage the leaderelection configmap in the
 # leader election namespace
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "cainjector.fullname" . }}:leaderelection
-  namespace: {{ .Values.global.leaderElection.namespace }}
+  name: my-cert-manager-cainjector:leaderelection
+  namespace: kube-system
   labels:
-    app: {{ include "cainjector.name" . }}
-    app.kubernetes.io/name: {{ include "cainjector.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: cainjector
+    app.kubernetes.io/name: cainjector
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "cainjector"
-    helm.sh/chart: {{ include "cainjector.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ template "cainjector.fullname" . }}:leaderelection
+  name: my-cert-manager-cainjector:leaderelection
 subjects:
   - kind: ServiceAccount
-    name: {{ template "cainjector.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace }}
-
-
-{{- end -}}
-{{- end -}}
+    name: my-cert-manager-cainjector
+    namespace: cert-manager

@@ -1,24 +1,24 @@
-{{- if .Values.prometheus.enabled }}
+---
+# Source: cert-manager/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "cert-manager.fullname" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  name: my-cert-manager
+  namespace: "cert-manager"
   labels:
-    app: {{ include "cert-manager.name" . }}
-    app.kubernetes.io/name: {{ include "cert-manager.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: cert-manager
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/instance: my-cert-manager
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "controller"
-    helm.sh/chart: {{ include "cert-manager.chart" . }}
+    helm.sh/chart: cert-manager-v1.3.0
 spec:
   type: ClusterIP
   ports:
     - protocol: TCP
       port: 9402
-      targetPort: {{ .Values.prometheus.servicemonitor.targetPort }}
+      targetPort: 9402
   selector:
-    app.kubernetes.io/name: {{ include "cert-manager.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/instance: my-cert-manager
     app.kubernetes.io/component: "controller"
-{{- end }}
